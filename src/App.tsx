@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 
-const API_BASE = "const API_BAS"
+const API_BASE = "https://launchpilot-backend.onrender.com";
   
 type AppForm = {
   name: string;

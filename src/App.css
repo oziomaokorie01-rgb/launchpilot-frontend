@@ -865,3 +865,93 @@ button {
   white-space: pre-line;
   font-size: 13px;
 }
+.outreach-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.outreach-tab {
+  border: 1px solid #34343c;
+  border-radius: 7px;
+  background: #151519;
+  color: #92929c;
+  padding: 7px 10px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.outreach-tab:hover {
+  background: #1d1d22;
+  color: white;
+}
+
+.outreach-tab.active {
+  border-color: #7c3aed;
+  background: rgba(124, 58, 237, 0.14);
+  color: #c4b5fd;
+}
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  padding: 18px;
+  border: 1px solid #292930;
+  border-radius: 12px;
+  background: rgba(16, 16, 20, 0.88);
+}
+
+.stat-card span {
+  display: block;
+  margin-bottom: 12px;
+  color: #777781;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.stat-card strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 27px;
+  letter-spacing: -1px;
+}
+
+.stat-card small {
+  color: #666670;
+  font-size: 11px;
+}
+
+.active-stat {
+  border-color: rgba(124, 58, 237, 0.45);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(124, 58, 237, 0.12),
+      rgba(16, 16, 20, 0.88)
+    );
+}
+
+.mission-stat-title {
+  font-size: 15px !important;
+  line-height: 1.35;
+  letter-spacing: -0.2px !important;
+}
+
+@media (max-width: 900px) {
+  .dashboard-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 550px) {
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+}

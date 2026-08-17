@@ -11,6 +11,15 @@ type AppForm = {
   goal: string;
 };
 
+type OutreachChannel = "instagram" | "x" | "email" | "general";
+
+type OutreachDrafts = {
+  instagram: string;
+  x: string;
+  email: string;
+  general: string;
+};
+
 type SavedApp = AppForm & {
   id: number;
 };
@@ -85,6 +94,8 @@ function App() {
 
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [campaignLoading, setCampaignLoading] = useState(false);
+  const [selectedOutreachChannel, setSelectedOutreachChannel] =
+  useState<Record<number, OutreachChannel>>({});
 
   const [analytics, setAnalytics] = useState<CampaignAnalytics[]>([]);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
@@ -92,10 +103,16 @@ function App() {
   const [creators, setCreators] = useState<CreatorOpportunity[]>([]);
   const [creatorLoading, setCreatorLoading] = useState(false);
 
-  const [outreach, setOutreach] = useState<
+  const [, setOutreach] = useState<
     Record<number, OutreachResult>
   >({});
+  const totalClicks = analytics.reduce(
+  (sum, item) => sum + item.clicks,
+  0
+);
 
+const activeMission =
+  missions.find((mission) => !mission.completed) ?? missions[0];
   const [outreachLoadingId, setOutreachLoadingId] =
     useState<number | null>(null);
 
@@ -251,6 +268,45 @@ function App() {
       setOutreachLoadingId(null);
     }
   }
+function createOutreachDrafts(
+  creatorName: string,
+  appName: string,
+  audience: string,
+  description: string
+): OutreachDrafts {
+  const firstName = creatorName.split(" ")[0] || creatorName;
+
+  return {
+    instagram: `Hey ${firstName}! I came across your content while looking for creators who reach ${audience.toLowerCase()}.
+
+I'm building ${appName} — ${description}
+
+I think it could be useful to your audience. I'd be happy to give you free access if you'd like to try it and share some feedback.`,
+
+    x: `Hey ${firstName}, came across your content while researching creators helping ${audience.toLowerCase()}.
+
+I'm building ${appName}: ${description}
+
+Would love to give you free access if you're interested in testing it.`,
+
+    email: `Subject: ${appName} × ${creatorName}
+
+Hi ${firstName},
+
+I found your content while researching creators whose audience overlaps with ${audience.toLowerCase()}.
+
+I'm building ${appName}, ${description}
+
+Rather than jumping straight into a promotion request, I'd love to give you free access and see whether you genuinely find it useful.
+
+If it seems relevant to your audience after trying it, I'd be happy to discuss a collaboration.
+
+Best,
+${appName} team`,
+
+    general: `Hi ${firstName}, I'm building ${appName} for ${audience.toLowerCase()}. ${description} I came across your content and thought there might be a good audience fit. Would you be interested in trying it?`,
+  };
+}
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -532,6 +588,33 @@ function App() {
             </div>
           </header>
 
+          <div className="dashboard-stats">
+  <div className="stat-card">
+    <span>Campaigns</span>
+    <strong>{campaigns.length}</strong>
+    <small>content experiments</small>
+  </div>
+
+  <div className="stat-card">
+    <span>Creators</span>
+    <strong>{creators.length}</strong>
+    <small>distribution matches</small>
+  </div>
+
+  <div className="stat-card">
+    <span>Tracked visits</span>
+    <strong>{totalClicks}</strong>
+    <small>campaign clicks</small>
+  </div>
+
+  <div className="stat-card active-stat">
+    <span>Current mission</span>
+    <strong className="mission-stat-title">
+      {activeMission?.title ?? "Build your launch plan"}
+    </strong>
+    <small>recommended next step</small>
+  </div>
+</div>
           {error && (
             <p className="error-message">
               {error}
@@ -908,35 +991,65 @@ function App() {
                         </button>
                       </div>
 
-                      {outreach[creator.id] && (
-                        <div className="outreach-box">
-                          <div className="outreach-heading">
-                            <span>
-                              Suggested Outreach
-                            </span>
+                     <div className="outreach-box">
+  <div className="outreach-heading">
+    <span>Outreach Drafts</span>
+  </div>
 
-                            <button
-                              className="copy-outreach-button"
-                              onClick={() =>
-                                navigator.clipboard.writeText(
-                                  outreach[
-                                    creator.id
-                                  ].message
-                                )
-                              }
-                            >
-                              Copy
-                            </button>
-                          </div>
+  <div className="outreach-tabs">
+    {(["instagram", "x", "email", "general"] as OutreachChannel[]).map(
+      (channel) => (
+        <button
+          key={channel}
+          className={
+            (selectedOutreachChannel[creator.id] ?? "instagram") === channel
+              ? "outreach-tab active"
+              : "outreach-tab"
+          }
+          onClick={() =>
+            setSelectedOutreachChannel((current) => ({
+              ...current,
+              [creator.id]: channel,
+            }))
+          }
+        >
+          {channel === "x"
+            ? "X"
+            : channel.charAt(0).toUpperCase() + channel.slice(1)}
+        </button>
+      )
+    )}
+  </div>
 
-                          <p>
-                            {
-                              outreach[creator.id]
-                                .message
-                            }
-                          </p>
-                        </div>
-                      )}
+  {(() => {
+    const drafts = createOutreachDrafts(
+      creator.name,
+      savedApp.name,
+      savedApp.audience,
+      savedApp.description
+    );
+
+    const activeChannel =
+      selectedOutreachChannel[creator.id] ?? "instagram";
+
+    const message = drafts[activeChannel];
+
+    return (
+      <>
+        <p>{message}</p>
+
+        <button
+          className="copy-outreach-button"
+          onClick={() =>
+            navigator.clipboard.writeText(message)
+          }
+        >
+          Copy Draft
+        </button>
+      </>
+    );
+  })()}
+</div>
                     </article>
                   )
                 )}
